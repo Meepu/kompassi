@@ -4,9 +4,11 @@ from __future__ import absolute_import
 import os
 from datetime import datetime, timedelta
 
+import django.conf.global_settings as defaults
 from django.utils.translation import ugettext_lazy as _
 
-import django.conf.global_settings as defaults
+import pyjade.ext.django
+
 
 
 def mkpath(*parts):
@@ -16,7 +18,6 @@ def mkpath(*parts):
 MKPATH = mkpath
 
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG
 
 if DEBUG:
     # XXX Monkey patch is_secure_transport to allow development over insecure HTTP
@@ -101,12 +102,29 @@ STATICFILES_FINDERS = (
 
 SECRET_KEY = 'jhdjl*kxcet2aaz)%ixmois*j_p+d*q79%legoz+9el(c%zc$%'
 
-TEMPLATE_LOADERS = (
-    ('pyjade.ext.django.Loader',(
-        'django.template.loaders.filesystem.Loader',
-        'django.template.loaders.app_directories.Loader',
-    )),
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [mkpath('turska', 'templates')],
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'django.core.context_processors.request',
+                'django.contrib.messages.context_processors.messages',
+                'core.context_processors.core_context',
+            ],
+            'loaders': [
+                ('pyjade.ext.django.Loader', (
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ))
+            ],
+        },
+    },
+]
 
 MIDDLEWARE_CLASSES = (
     'corsheaders.middleware.CorsMiddleware',
@@ -125,16 +143,6 @@ ROOT_URLCONF = 'turska.urls'
 WSGI_APPLICATION = 'turska.wsgi.application'
 APPEND_SLASH = False
 
-TEMPLATE_DIRS = (
-    mkpath('turska','templates'),
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = defaults.TEMPLATE_CONTEXT_PROCESSORS + (
-    'django.core.context_processors.request',
-    'django.contrib.messages.context_processors.messages',
-    'core.context_processors.core_context',
-)
-
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
 INSTALLED_APPS = (
@@ -146,7 +154,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'django.contrib.admin',
 
-    'pyjade',
+    'pyjade.ext.django',
     'crispy_forms',
     'oauth2_provider',
     'nexmo',
