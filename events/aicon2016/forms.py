@@ -7,8 +7,26 @@ from crispy_forms.layout import Layout, Fieldset
 from core.utils import horizontal_form_helper, indented_without_label
 from labour.forms import AlternativeFormMixin
 from labour.models import Signup, JobCategory, WorkPeriod
+from enrollment.models import Enrollment
 
 from .models import SignupExtra
+
+
+class EnrollmentForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(EnrollmentForm, self).__init__(*args, **kwargs)
+        self.helper = horizontal_form_helper()
+
+    class Meta:
+        model = Enrollment
+        fields = (
+          'special_diet',
+          'special_diet_other',
+          )
+
+        widgets = dict(
+            special_diet=forms.CheckboxSelectMultiple,
+        )
 
 
 class SignupExtraForm(forms.ModelForm):

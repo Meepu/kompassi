@@ -35,6 +35,36 @@ class Setup(object):
         self.setup_access()
         self.setup_payments()
         self.setup_programme()
+        self.setup_enrollment()
+
+    # TESTING ONLY, NOT TO BE ADDED TO PRODUCTION
+    def setup_enrollment(self):
+        from enrollment.models import (
+            EnrollmentEventMeta,
+            SpecialDiet,
+        )
+
+        enrollment_admin_group, = EnrollmentEventMeta.get_or_create_groups(self.event, ['admins'])
+ 
+        enrollment_event_meta_defaults = dict(
+            admin_group=enrollment_admin_group,
+            form_code_path='events.aicon2016.forms:EnrollmentForm',
+        )
+
+        enrollment_event_meta, unused = EnrollmentEventMeta.objects.get_or_create(
+            event=self.event,
+            defaults=enrollment_event_meta_defaults,
+        )
+
+        for diet_name in [
+            'Gluteeniton',
+            'Laktoositon',
+            'Maidoton',
+            'Vegaaninen',
+            'Lakto-ovo-vegetaristinen',
+        ]:
+            SpecialDiet.objects.get_or_create(name=diet_name)
+
 
     def setup_core(self):
         from core.models import Venue, Event, Organization
