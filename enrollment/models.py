@@ -68,10 +68,16 @@ class EnrollmentEventMeta(EventMetaBase):
     """
     An event has an instance of this class to indicate use of the enrollment module.
     """
+    title = models.TextField(
+        blank=False,
+        verbose_name=_('Title'),
+        help_text=_('Unique title for this enrollment. Examples: Artist alley, cosplay date show, magic wand workshop')
+    )
+
     form_class_path = models.CharField(
         max_length=63,
         help_text=_("Reference to form class. Example: events.yukicon2016.forms:EnrollmentForm"),
-    );
+    )
 
     enrollment_opens = models.DateTimeField(
         null=True,
