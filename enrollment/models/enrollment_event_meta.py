@@ -71,3 +71,7 @@ class EnrollmentEventMeta(EventMetaBase):
                 'the event organizer and notified of the decision whether to accept your enrollment '
                 'or not.'
             )
+
+    @property
+    def enrollment_title(self):
+        return self.title
