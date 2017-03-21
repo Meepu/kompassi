@@ -2,9 +2,9 @@ extends base.jade
 - load crispy_forms_tags
 - load i18n
 block title
-  | {% trans "Enroll" %}
+  | {{event.enrollment_event_meta.enrollment_title}}: {% trans "Enroll" %}
 block content
-  h2 {% trans "Enroll" %}
+  h2 {{event.enrollment_event_meta.enrollment_title}}
   {{ event.enrollment_event_meta.enrollment_form_message|safe|linebreaks }}
 
   .panel.panel-default
