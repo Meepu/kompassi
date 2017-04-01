@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-from __future__ import unicode_literals
+
 
 from collections import OrderedDict, namedtuple
 
@@ -38,7 +38,7 @@ def labour_admin_signups_view(request, vars, event, format='screen'):
     SignupClass = SignupCertificateProxy if format == 'html' else Signup
     SignupExtra = meta.signup_extra_model
     signups = SignupClass.objects.filter(event=event)
-    signups = signups.select_related('person')
+    signups = signups.select_related('person').select_related('event')
     signups = signups.prefetch_related('job_categories').prefetch_related('job_categories_accepted')
 
     if format in HTML_TEMPLATES:

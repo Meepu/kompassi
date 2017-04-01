@@ -1,7 +1,8 @@
 # encoding: utf-8
 from collections import namedtuple
 
-import unicodecsv
+import csv
+from io import BytesIO
 
 from django.http import HttpResponse
 from django.db import models
@@ -40,7 +41,7 @@ class CsvExportMixin(object):
             if not isinstance(field, models.ForeignKey):
                 fields.append((cls, field))
 
-        for field, unused in cls._meta.get_m2m_with_model():
+        for field in cls._meta.many_to_many:
             fields.append((cls, field))
 
         return fields
@@ -53,7 +54,7 @@ class CsvExportMixin(object):
         related = self.get_csv_related()
 
         for model, field in fields:
-            if isinstance(field, (unicode, str)):
+            if isinstance(field, str):
                 field_name = field
                 field_type = None
             else:
@@ -76,7 +77,7 @@ class CsvExportMixin(object):
                         for choice in choices
                     )
                 elif m2m_mode == 'comma_separated':
-                    result_row.append(u', '.join(item.__unicode__() for item in field_value.all()))
+                    result_row.append(', '.join(item.__str__() for item in field_value.all()))
                 else:
                     raise NotImplemented(m2m_mode)
             elif field_type is models.DateTimeField and field_value is not None:
@@ -92,7 +93,7 @@ def write_header_row(event, writer, fields, m2m_mode='separate_columns'):
     header_row = []
 
     for (model, field) in fields:
-        if isinstance(field, (unicode, str)):
+        if isinstance(field, str):
             field_name = field
             field_type = None
         else:
@@ -103,8 +104,8 @@ def write_header_row(event, writer, fields, m2m_mode='separate_columns'):
             if m2m_mode == 'separate_columns':
                 choices = get_m2m_choices(event, field)
                 header_row.extend(
-                    u"{field_name}: {choice}"
-                    .format(field_name=field_name, choice=choice.__unicode__())
+                    "{field_name}: {choice}"
+                    .format(field_name=field_name, choice=choice.__str__())
                     for choice in choices
                 )
             elif m2m_mode == 'comma_separated':
@@ -121,7 +122,7 @@ def get_m2m_choices(event, field):
     target_model = field.rel.to
     cache_key = (event.id, target_model._meta.app_label, target_model._meta.model_name)
 
-    if not cache_key in get_m2m_choices.cache:
+    if cache_key not in get_m2m_choices.cache:
 
         if any(f.name == 'event' for f in target_model._meta.fields):
             choices = target_model.objects.filter(event=event)
@@ -144,7 +145,7 @@ def make_writer(output_stream, dialect):
         from .excel_export import XlsxWriter
         return XlsxWriter(output_stream)
     else:
-        return unicodecsv.writer(output_stream, encoding=ENCODING, dialect=dialect, errors='ignore')
+        return csv.writer(output_stream, encoding=ENCODING, dialect=dialect, errors='ignore')
 
 
 def export_csv(event, model, model_instances, output_file, m2m_mode='separate_columns', dialect='excel-tab'):
@@ -154,7 +155,7 @@ def export_csv(event, model, model_instances, output_file, m2m_mode='separate_co
     write_header_row(event, writer, fields, m2m_mode)
 
     for model_instance in model_instances:
-        if isinstance(model_instance, (str, unicode, int)):
+        if isinstance(model_instance, (str, int)):
             model_instance = model.objects.get(pk=int(model_instances))
 
         write_row(event, writer, fields, model_instance, m2m_mode)
@@ -171,14 +172,15 @@ CONTENT_TYPES = dict(
 def csv_response(*args, **kwargs):
     filename = kwargs.pop('filename')
     dialect = kwargs.get('dialect', 'excel')
+    bio = BytesIO()
 
-    response = HttpResponse(content_type=CONTENT_TYPES.get(dialect, 'text/csv'))
+    kwargs['output_file'] = bio
+
+    export_csv(*args, **kwargs)
+
+    response = HttpResponse(bio.getvalue(), content_type=CONTENT_TYPES.get(dialect, 'text/csv'))
     response['Content-Disposition'] = 'attachment; filename="{filename}"'.format(
         filename=filename
     )
-
-    kwargs['output_file'] = response
-
-    export_csv(*args, **kwargs)
 
     return response

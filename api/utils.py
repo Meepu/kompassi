@@ -1,6 +1,6 @@
+import base64
 import json
 import logging
-from datetime import datetime, date
 from functools import wraps
 
 from jsonschema import (
@@ -22,10 +22,10 @@ def http_basic_auth(func):
     @wraps(func)
     def _decorator(request, *args, **kwargs):
         from django.contrib.auth import authenticate, login
-        if request.META.has_key('HTTP_AUTHORIZATION'):
+        if 'HTTP_AUTHORIZATION' in request.META:
             authmeth, auth = request.META['HTTP_AUTHORIZATION'].split(' ', 1)
             if authmeth.lower() == 'basic':
-                auth = auth.strip().decode('base64')
+                auth = base64.decodebytes(auth.encode('UTF-8')).decode('UTF-8')  # fmh
                 username, password = auth.split(':', 1)
                 user = authenticate(username=username, password=password)
                 if user:
@@ -37,8 +37,10 @@ def http_basic_auth(func):
 class NotAuthorized(RuntimeError):
     pass
 
+
 class MethodNotAllowed(RuntimeError):
     pass
+
 
 class BadRequest(RuntimeError):
     pass
@@ -120,7 +122,7 @@ class JSONSchemaObject(object):
     @classmethod
     def from_dict(cls, d):
         validate(d, cls.schema)
-        attrs = [d.get(key, u'') for key in cls._fields]
+        attrs = [d.get(key, '') for key in cls._fields]
         return cls(*attrs)
 
     @classmethod
