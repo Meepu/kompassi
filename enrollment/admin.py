@@ -1,6 +1,6 @@
 # encoding: utf-8
 
-
+from __future__ import unicode_literals
 
 from django.contrib import admin
 
@@ -13,8 +13,8 @@ class InlineEnrollmentEventMetaAdmin(admin.StackedInline):
 
 class EnrollmentAdmin(admin.ModelAdmin):
     model = Enrollment
-    list_display = ('event', 'person')
-    list_filter = ('event',)
+    # list_display = ('event', 'person')
+    # list_filter = ('event',)
 
 
 admin.site.register(Enrollment, EnrollmentAdmin)

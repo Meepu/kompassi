@@ -8,7 +8,8 @@ class Enrollment(models.Model):
     """
     Holds all the possible fields an enrollment instance may have
     """
-    event = models.ForeignKey('core.event')
+    # todo liitä meta
+#    meta = models.ForeignKey('enrollment.enrollmenteventmeta')
     person = models.ForeignKey('core.person')
 
     special_diet = models.ManyToManyField(
@@ -32,8 +33,9 @@ class Enrollment(models.Model):
     def formatted_special_diet(self):
         return ', '.join(sd.name for sd in self.special_diet.all())
 
-    def __str__(self):
-        return '{event}: {person}'.format(
-            event=self.event,
-            person=self.person,
-        )
+    # todo tämä ei enää toimi ja rikkoo todennäköisesti jotain (mitä?)
+    # def __str__(self):
+    #     return '{event}: {person}'.format(
+    #         event=self.event,
+    #         person=self.person,
+    #     )
