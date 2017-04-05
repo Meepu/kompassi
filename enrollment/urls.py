@@ -9,19 +9,19 @@ from .views import (
 
 urlpatterns = [
     url(
-        r'^events/(?P<event_slug>[a-z0-9-]+)/enrollment/?$',
+        r'^events/(?P<event_slug>[a-z0-9-]+)/enrollment/(?P<enrollment_slug>[a-z0-9-]+)/?$',
         enrollment_enroll_view,
         name='enrollment_enroll_view'
     ),
 
     url(
-        r'^events/(?P<event_slug>[a-z0-9-]+)/enrollment/admin/?$',
+        r'^events/(?P<event_slug>[a-z0-9-]+)/enrollment/(?P<enrollment_slug>[a-z0-9-]+)/admin/?$',
         enrollment_admin_view,
         name='enrollment_admin_view'
     ),
 
     url(
-        r'^events/(?P<event_slug>[a-z0-9-]+)/enrollment/admin/specialdiets/?$',
+        r'^events/(?P<event_slug>[a-z0-9-]+)/enrollment/(?P<enrollment_slug>[a-z0-9-]+)/admin/specialdiets/?$',
         enrollment_admin_special_diets_view,
         name='enrollment_admin_special_diets_view'
     ),

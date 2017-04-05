@@ -16,11 +16,15 @@ def enrollment_event_box_context(request, event):
 
         try:
             person = request.user.person
-            enrollment = Enrollment.objects.get(event=event, person=person)
+            enrollment = Enrollment.objects.get(
+#              event=event, 
+              person=person)
         except (Person.DoesNotExist, Enrollment.DoesNotExist):
             pass
 
     return dict(
         enrollment=enrollment,
         is_enrollment_admin=is_enrollment_admin,
+        # todo tarkasta tämän olemassaolo ja oikeellisuus
+        enrollment_slug = event.enrollment_event_meta.enrollment_slug
     )

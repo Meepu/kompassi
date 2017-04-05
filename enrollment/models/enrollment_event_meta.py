@@ -1,7 +1,5 @@
 # encoding: utf-8
 
-
-
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -11,13 +9,19 @@ from core.utils import alias_property, is_within_period
 
 class EnrollmentEventMeta(EventMetaBase):
     """
-    An event has an instance of this class to indicate use of the enrollment module.
+    An event has instances of this class to indicate use of the enrollment module.
     """
+    
     title = models.TextField(
         blank=False,
         verbose_name=_('Title'),
         help_text=_('Unique title for this enrollment. Examples: Artist alley, cosplay date show, magic wand workshop')
     )
+
+    slug = models.TextField(
+        blank=False,
+        verbose_name=_('Slug'),
+        help_text=_('Unique machine-readable name for this enrollment. Examples: artistalley, cosplaydateshow, magicwandworkshop.'))
 
     form_class_path = models.CharField(
         max_length=63,
@@ -75,3 +79,7 @@ class EnrollmentEventMeta(EventMetaBase):
     @property
     def enrollment_title(self):
         return self.title
+
+    @property
+    def enrollment_slug(self):
+        return self.slug

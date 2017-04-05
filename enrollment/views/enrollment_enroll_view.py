@@ -13,16 +13,18 @@ from ..models import Enrollment
 
 @enrollment_event_required
 @person_required
-def enrollment_enroll_view(request, event):
+def enrollment_enroll_view(request, event, enrollment_slug):
+    # todo valitse slugia vastaava meta
     meta = event.enrollment_event_meta
 
     already_enrolled = Enrollment.objects.filter(
-        event=event,
+#        event=event,
+# todo liitä metaan
         person=request.user.person,
     ).exists()
 
     if already_enrolled:
-        # TODO Display
+        # TODO Display enrollment edit/delete view
         messages.error(request, _("You are already enrolled in this event."))
         return redirect('core_event_view', event.slug)
 
@@ -34,7 +36,7 @@ def enrollment_enroll_view(request, event):
 
         if form.is_valid():
             enrollment = form.save(commit=False)
-            enrollment.event = event
+#            enrollment.event = event
             enrollment.person = request.user.person
             enrollment.save()
             form.save_m2m()
@@ -49,7 +51,7 @@ def enrollment_enroll_view(request, event):
     vars = dict(
         already_enrolled=already_enrolled,
         event_slug = event,
-        event=event,
+#        event=event,
         form=form,
     )
 
