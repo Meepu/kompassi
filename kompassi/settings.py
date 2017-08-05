@@ -24,7 +24,7 @@ def mkpath(*parts):
 
 MKPATH = mkpath
 
-DEBUG = True # env.bool('DEBUG', default=False)
+DEBUG = env.bool('DEBUG', default=False)
 
 CORS_ORIGIN_ALLOW_ALL = DEBUG
 CORS_URLS_REGEX = r'^/(api|oauth2)/.*$'
@@ -207,7 +207,7 @@ INSTALLED_APPS = (
     'events.kawacon2017',
     'events.worldcon75',
     'events.frostbite2018',
-    'events.yukicon2018'
+    'events.yukicon2018',
 )
 
 LOGGING = {
